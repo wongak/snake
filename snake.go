@@ -21,7 +21,7 @@ var (
 
 	initialLength = 3
 
-	speed float64 = 30.0
+	speed float64 = 25.0
 )
 
 var (
@@ -153,9 +153,11 @@ func update(screen *ebiten.Image) error {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
 		h.direction = 0
 	}
+	currSpeed := speed - (float64(points) / 10000.0)
 
-	if frame%int64(speed) == 0 {
+	if frame%int64(currSpeed) == 0 {
 		h.move(w, h.direction)
+		points += 10
 	}
 
 	screen.Fill(bgColor)
