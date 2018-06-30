@@ -21,7 +21,7 @@ var (
 
 	initialLength = 3
 
-	speed float64 = 25.0
+	speed float64 = 20.0
 )
 
 var (
@@ -91,6 +91,18 @@ func (h *head) move(w *world, direction int) {
 		h.x -= 1
 	case 3:
 		h.y -= 1
+	}
+	if h.x < 0 {
+		h.x = w.cellsX
+	}
+	if h.x > w.cellsX {
+		h.x = 0
+	}
+	if h.y < 0 {
+		h.y = w.cellsY
+	}
+	if h.y > w.cellsY {
+		h.y = 0
 	}
 }
 
