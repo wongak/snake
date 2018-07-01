@@ -19,9 +19,9 @@ var (
 	cellsX = 80
 	cellsY = 80
 
-	initialLength = 5
+	initialLength = 3
 
-	speed float64 = 10.0
+	speed float64 = 12.0
 )
 
 var (
@@ -29,6 +29,7 @@ var (
 	borderColor = color.RGBA{0x10, 0xa0, 0x10, 0xff}
 	snColor     = color.RGBA{0x20, 0xff, 0x20, 0xff}
 	errEnd      = errors.New("end")
+	errLose     = errors.New("lose")
 )
 
 type world struct {
@@ -101,6 +102,16 @@ func (n *node) step(w *world) {
 	n.y = n.parent.y
 }
 
+func (n *node) collided(x, y int) bool {
+	if x == n.x && y == n.y {
+		return true
+	}
+	if n.child != nil {
+		return n.child.collided(x, y)
+	}
+	return false
+}
+
 type head struct {
 	*node
 	direction int
@@ -132,6 +143,13 @@ func (h *head) move(w *world, direction int) {
 	if h.y > w.cellsY {
 		h.y = 0
 	}
+}
+
+func (h *head) alive() bool {
+	if h.child == nil {
+		return true
+	}
+	return !h.child.collided(h.x, h.y)
 }
 
 func initSnake(w *world, initialLength int) *head {
@@ -197,6 +215,9 @@ func update(screen *ebiten.Image) error {
 
 	if frame%int64(currSpeed) == 0 {
 		h.move(w, h.direction)
+		if !h.alive() {
+			return errLose
+		}
 		points += 10
 	}
 
