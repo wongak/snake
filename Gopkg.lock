@@ -45,7 +45,8 @@
     "internal/restorable",
     "internal/shareable",
     "internal/ui",
-    "internal/web"
+    "internal/web",
+    "text"
   ]
   revision = "802f62c410c0fa2e93bcf33a98e2bc855af5c506"
   version = "v1.7.0"
@@ -68,7 +69,13 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/image"
-  packages = ["math/f64"]
+  packages = [
+    "font",
+    "font/basicfont",
+    "font/plan9font",
+    "math/f64",
+    "math/fixed"
+  ]
   revision = "cc896f830cedae125428bc9fe1b0362aa91b3fb1"
 
 [[projects]]
@@ -104,6 +111,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ab2df95873288a96ba97104a92867de5c21c4af81708525f2d3f31fe570bca01"
+  inputs-digest = "728fee06138b68772c4892df311df0a48972bfd1db21b7b7a07bb0870f7a90fa"
   solver-name = "gps-cdcl"
   solver-version = 1

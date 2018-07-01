@@ -6,8 +6,11 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/text"
+	"golang.org/x/image/font/basicfont"
 )
 
 const (
@@ -210,6 +213,10 @@ func (f *food) draw(w *world, canvas *ebiten.Image) {
 	canvas.DrawImage(w.foodTile, opts)
 }
 
+func drawPoints(w *world, canvas *ebiten.Image) {
+	text.Draw(canvas, strconv.FormatInt(points, 10), basicfont.Face7x13, w.cellW, w.cellH*(w.cellsY+6), snColor)
+}
+
 var (
 	w      *world
 	h      *head
@@ -217,7 +224,7 @@ var (
 	grow   int = 1
 	moving bool
 	frame  int64
-	points int
+	points int64
 )
 
 func main() {
@@ -280,6 +287,7 @@ func update(screen *ebiten.Image) error {
 	if f != nil {
 		f.draw(w, screen)
 	}
+	drawPoints(w, screen)
 
 	return nil
 }
