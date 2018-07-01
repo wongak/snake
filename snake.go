@@ -54,8 +54,8 @@ func newWorld(w, h, x, y int) *world {
 		// cell size in pixels is at least width / (cells + 1),
 		// otherwise the last cell is outside of the screen
 		// + 2 for drawing a border on row/column 0
-		cellW: w / (x + 2),
-		cellH: h / (y + 2),
+		cellW: w / (x + 12),
+		cellH: h / (y + 12),
 	}
 	world.tile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
 	world.tile.Fill(snColor)
@@ -189,7 +189,7 @@ type food struct {
 	x, y int
 }
 
-func spawnFood(w *world) *food {
+func (f *food) respawn(w *world) {
 	var x, y int
 	for {
 		x = rand.Intn(w.cellsX)
@@ -199,7 +199,8 @@ func spawnFood(w *world) *food {
 		}
 		break
 	}
-	return &food{x: x, y: y}
+	f.x = x
+	f.y = y
 }
 
 func (f *food) draw(w *world, canvas *ebiten.Image) {
@@ -221,6 +222,8 @@ var (
 func main() {
 	w = newWorld(width, height, cellsX, cellsY)
 	h = initSnake(w, initialLength)
+	f = &food{}
+	f.respawn(w)
 	if err := ebiten.Run(update, width, height, 2, title); err != nil {
 		if err == errEnd {
 			return
@@ -256,10 +259,6 @@ func update(screen *ebiten.Image) error {
 	}
 	currSpeed := speed - (float64(points) / 10000.0)
 
-	if f == nil {
-		f = spawnFood(w)
-	}
-
 	if frame%int64(currSpeed) == 0 {
 		h.move(w, h.direction)
 		if !h.alive() {
@@ -271,7 +270,7 @@ func update(screen *ebiten.Image) error {
 	if h.node.x == f.x && h.node.y == f.y {
 		points += 1000
 		grow = int(math.Log10(float64(points)))
-		f = nil
+		f.respawn(w)
 	}
 
 	screen.Fill(bgColor)
