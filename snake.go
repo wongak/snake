@@ -4,6 +4,7 @@ import (
 	"errors"
 	"image/color"
 	"log"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
 )
@@ -28,6 +29,7 @@ var (
 	bgColor     = color.RGBA{0x18, 0x29, 0x18, 0xff}
 	borderColor = color.RGBA{0x10, 0xa0, 0x10, 0xff}
 	snColor     = color.RGBA{0x20, 0xff, 0x20, 0xff}
+	foodColor   = color.RGBA{0xa0, 0xa0, 0x10, 0xff}
 	errEnd      = errors.New("end")
 	errLose     = errors.New("lose")
 )
@@ -37,6 +39,7 @@ type world struct {
 	cellsX, cellsY   int
 	cellW, cellH     int
 	tile             *ebiten.Image
+	foodTile         *ebiten.Image
 
 	borders *ebiten.Image
 }
@@ -55,6 +58,8 @@ func newWorld(w, h, x, y int) *world {
 	}
 	world.tile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
 	world.tile.Fill(snColor)
+	world.foodTile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
+	world.foodTile.Fill(foodColor)
 
 	world.initBorders()
 	return world
@@ -100,6 +105,13 @@ func (n *node) step(w *world) {
 	}
 	n.x = n.parent.x
 	n.y = n.parent.y
+	if n.child == nil && grow > 0 {
+		curr := n
+		for ; grow > 0; grow-- {
+			curr.child = &node{parent: curr, x: curr.x, y: curr.y}
+			curr = curr.child
+		}
+	}
 }
 
 func (n *node) collided(x, y int) bool {
@@ -172,9 +184,34 @@ func initSnake(w *world, initialLength int) *head {
 	return head
 }
 
+type food struct {
+	x, y int
+}
+
+func spawnFood(w *world) *food {
+	var x, y int
+	for {
+		x = rand.Intn(w.cellsX)
+		y = rand.Intn(w.cellsY)
+		if h.collided(x, y) {
+			continue
+		}
+		break
+	}
+	return &food{x: x, y: y}
+}
+
+func (f *food) draw(w *world, canvas *ebiten.Image) {
+	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Translate(float64(w.cellW*(f.x+1)), float64(w.cellH*(f.y+1)))
+	canvas.DrawImage(w.foodTile, opts)
+}
+
 var (
 	w      *world
 	h      *head
+	f      *food
+	grow   int = 1
 	moving bool
 	frame  int64
 	points int
@@ -226,6 +263,10 @@ func update(screen *ebiten.Image) error {
 	}
 	currSpeed := speed - (float64(points) / 10000.0)
 
+	if f == nil {
+		f = spawnFood(w)
+	}
+
 	if frame%int64(currSpeed) == 0 {
 		h.move(w, h.direction)
 		if !h.alive() {
@@ -234,10 +275,19 @@ func update(screen *ebiten.Image) error {
 		points += 10
 		moving = false
 	}
+	// eat
+	if h.node.x == f.x && h.node.y == f.y {
+		points += 1000
+		grow = 1
+		f = nil
+	}
 
 	screen.Fill(bgColor)
 	w.draw(screen)
 	h.draw(w, screen)
+	if f != nil {
+		f.draw(w, screen)
+	}
 
 	return nil
 }
