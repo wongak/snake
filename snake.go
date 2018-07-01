@@ -19,9 +19,9 @@ var (
 	cellsX = 80
 	cellsY = 80
 
-	initialLength = 3
+	initialLength = 5
 
-	speed float64 = 15.0
+	speed float64 = 10.0
 )
 
 var (
@@ -67,6 +67,12 @@ func (w *world) initBorders() {
 	w.borders.DrawImage(hor, opts)
 	opts.GeoM.Translate(0, float64(w.cellH*(w.cellsY+2)))
 	w.borders.DrawImage(hor, opts)
+	vert, _ := ebiten.NewImage(w.cellW, w.cellH*(w.cellsY+3), ebiten.FilterNearest)
+	vert.Fill(borderColor)
+	opts = &ebiten.DrawImageOptions{}
+	w.borders.DrawImage(vert, opts)
+	opts.GeoM.Translate(float64(w.cellW*(w.cellsX+2)), 0)
+	w.borders.DrawImage(vert, opts)
 }
 
 func (w *world) draw(canvas *ebiten.Image) {
