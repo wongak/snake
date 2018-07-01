@@ -18,11 +18,11 @@ const (
 )
 
 var (
-	width  = 400
+	width  = 500
 	height = 400
 
-	cellsX = 50
-	cellsY = 50
+	cellsX = 60
+	cellsY = 40
 
 	initialLength = 3
 
@@ -61,6 +61,12 @@ func newWorld(w, h, x, y int) *world {
 		cellW: w / (x + 12),
 		cellH: h / (y + 12),
 	}
+	cellSize := world.cellW
+	if world.cellH < cellSize {
+		cellSize = world.cellH
+	}
+	world.cellW, world.cellH = cellSize, cellSize
+
 	world.tile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
 	world.tile.Fill(snColor)
 	world.foodTile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
