@@ -25,9 +25,10 @@ var (
 )
 
 var (
-	bgColor = color.RGBA{0x18, 0x29, 0x18, 0xff}
-	snColor = color.RGBA{0x20, 0xff, 0x20, 0xff}
-	errEnd  = errors.New("end")
+	bgColor     = color.RGBA{0x18, 0x29, 0x18, 0xff}
+	borderColor = color.RGBA{0x10, 0xa0, 0x10, 0xff}
+	snColor     = color.RGBA{0x20, 0xff, 0x20, 0xff}
+	errEnd      = errors.New("end")
 )
 
 type world struct {
@@ -35,6 +36,8 @@ type world struct {
 	cellsX, cellsY   int
 	cellW, cellH     int
 	tile             *ebiten.Image
+
+	borders *ebiten.Image
 }
 
 func newWorld(w, h, x, y int) *world {
@@ -43,12 +46,31 @@ func newWorld(w, h, x, y int) *world {
 		screenH: h,
 		cellsX:  x,
 		cellsY:  y,
-		cellW:   w / (x + 2),
-		cellH:   h / (y + 2),
+		// cell size in pixels is at least width / (cells + 1),
+		// otherwise the last cell is outside of the screen
+		// + 2 for drawing a border on row/column 0
+		cellW: w / (x + 2),
+		cellH: h / (y + 2),
 	}
 	world.tile, _ = ebiten.NewImage(world.cellW, world.cellH, ebiten.FilterNearest)
 	world.tile.Fill(snColor)
+
+	world.initBorders()
 	return world
+}
+
+func (w *world) initBorders() {
+	w.borders, _ = ebiten.NewImage(w.screenW, w.screenH, ebiten.FilterNearest)
+	hor, _ := ebiten.NewImage(w.cellW*(w.cellsX+2), w.cellH, ebiten.FilterNearest)
+	hor.Fill(borderColor)
+	opts := &ebiten.DrawImageOptions{}
+	w.borders.DrawImage(hor, opts)
+	opts.GeoM.Translate(0, float64(w.cellH*(w.cellsY+2)))
+	w.borders.DrawImage(hor, opts)
+}
+
+func (w *world) draw(canvas *ebiten.Image) {
+	canvas.DrawImage(w.borders, &ebiten.DrawImageOptions{})
 }
 
 type node struct {
@@ -58,7 +80,7 @@ type node struct {
 
 func (n *node) draw(w *world, canvas *ebiten.Image) {
 	opts := &ebiten.DrawImageOptions{}
-	opts.GeoM.Translate(float64(w.cellW*n.x), float64(w.cellH*n.y))
+	opts.GeoM.Translate(float64(w.cellW*(n.x+1)), float64(w.cellH*(n.y+1)))
 	canvas.DrawImage(w.tile, opts)
 	if n.child != nil {
 		n.child.draw(w, canvas)
@@ -183,6 +205,7 @@ func update(screen *ebiten.Image) error {
 	}
 
 	screen.Fill(bgColor)
+	w.draw(screen)
 	h.draw(w, screen)
 	testDraw(w, screen)
 
