@@ -239,28 +239,20 @@ func update(screen *ebiten.Image) error {
 		return errEnd
 	}
 	if (ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW)) &&
-		h.direction%4 != 1 &&
-		!moving {
+		h.direction%4 != 1 {
 		h.direction = 3
-		moving = true
 	}
 	if (ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS)) &&
-		h.direction%4 != 3 &&
-		!moving {
+		h.direction%4 != 3 {
 		h.direction = 1
-		moving = true
 	}
 	if (ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA)) &&
-		h.direction%4 != 0 &&
-		!moving {
+		h.direction%4 != 0 {
 		h.direction = 2
-		moving = true
 	}
 	if (ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD)) &&
-		h.direction%4 != 2 &&
-		!moving {
+		h.direction%4 != 2 {
 		h.direction = 0
-		moving = true
 	}
 	currSpeed := speed - (float64(points) / 10000.0)
 
@@ -274,7 +266,6 @@ func update(screen *ebiten.Image) error {
 			return errLose
 		}
 		points += 10
-		moving = false
 	}
 	// eat
 	if h.node.x == f.x && h.node.y == f.y {
