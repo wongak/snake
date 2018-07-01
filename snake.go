@@ -1,4 +1,4 @@
-package main // import "github.com/wongak/snake"
+package main
 
 import (
 	"errors"
@@ -33,6 +33,7 @@ var (
 	foodColor   = color.RGBA{0xa0, 0xa0, 0x10, 0xff}
 	errEnd      = errors.New("end")
 	errLose     = errors.New("lose")
+	opts        = &ebiten.DrawImageOptions{}
 )
 
 type world struct {
@@ -70,13 +71,13 @@ func (w *world) initBorders() {
 	w.borders, _ = ebiten.NewImage(w.screenW, w.screenH, ebiten.FilterNearest)
 	hor, _ := ebiten.NewImage(w.cellW*(w.cellsX+2), w.cellH, ebiten.FilterNearest)
 	hor.Fill(borderColor)
-	opts := &ebiten.DrawImageOptions{}
 	w.borders.DrawImage(hor, opts)
+	opts.GeoM.Reset()
 	opts.GeoM.Translate(0, float64(w.cellH*(w.cellsY+2)))
 	w.borders.DrawImage(hor, opts)
 	vert, _ := ebiten.NewImage(w.cellW, w.cellH*(w.cellsY+3), ebiten.FilterNearest)
 	vert.Fill(borderColor)
-	opts = &ebiten.DrawImageOptions{}
+	opts.GeoM.Reset()
 	w.borders.DrawImage(vert, opts)
 	opts.GeoM.Translate(float64(w.cellW*(w.cellsX+2)), 0)
 	w.borders.DrawImage(vert, opts)
@@ -92,7 +93,7 @@ type node struct {
 }
 
 func (n *node) draw(w *world, canvas *ebiten.Image) {
-	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Reset()
 	opts.GeoM.Translate(float64(w.cellW*(n.x+1)), float64(w.cellH*(n.y+1)))
 	canvas.DrawImage(w.tile, opts)
 	if n.child != nil {
@@ -204,7 +205,7 @@ func (f *food) respawn(w *world) {
 }
 
 func (f *food) draw(w *world, canvas *ebiten.Image) {
-	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Reset()
 	opts.GeoM.Translate(float64(w.cellW*(f.x+1)), float64(w.cellH*(f.y+1)))
 	canvas.DrawImage(w.foodTile, opts)
 }
