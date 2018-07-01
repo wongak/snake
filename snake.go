@@ -87,16 +87,6 @@ func (n *node) draw(w *world, canvas *ebiten.Image) {
 	}
 }
 
-func testDraw(w *world, canvas *ebiten.Image) {
-	opts := &ebiten.DrawImageOptions{}
-	opts.GeoM.Translate(float64(w.cellW*0), float64(w.cellH*0))
-	canvas.DrawImage(w.tile, opts)
-
-	opts = &ebiten.DrawImageOptions{}
-	opts.GeoM.Translate(float64(w.cellW*w.cellsX), float64(w.cellH*cellsY))
-	canvas.DrawImage(w.tile, opts)
-}
-
 func (n *node) step(w *world) {
 	if n.child != nil {
 		n.child.step(w)
@@ -207,7 +197,6 @@ func update(screen *ebiten.Image) error {
 	screen.Fill(bgColor)
 	w.draw(screen)
 	h.draw(w, screen)
-	testDraw(w, screen)
 
 	return nil
 }
