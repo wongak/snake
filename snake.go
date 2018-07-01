@@ -4,6 +4,7 @@ import (
 	"errors"
 	"image/color"
 	"log"
+	"math"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
@@ -17,8 +18,8 @@ var (
 	width  = 400
 	height = 400
 
-	cellsX = 80
-	cellsY = 80
+	cellsX = 50
+	cellsY = 50
 
 	initialLength = 3
 
@@ -278,7 +279,7 @@ func update(screen *ebiten.Image) error {
 	// eat
 	if h.node.x == f.x && h.node.y == f.y {
 		points += 1000
-		grow = 1
+		grow = int(math.Log10(float64(points)))
 		f = nil
 	}
 
